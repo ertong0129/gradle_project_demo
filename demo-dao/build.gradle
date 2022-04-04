@@ -1,0 +1,4 @@
+dependencies {
+    compile project(":demo-domain")
+    compile 'org.mybatis:mybatis'
+}

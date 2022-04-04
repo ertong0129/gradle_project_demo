@@ -1,0 +1,164 @@
+buildscript {
+    dependencies {
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.1.9.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+}
+
+ext {
+
+    springBootVersion = '2.1.9.RELEASE'
+    springContextSupportVersion = "1.0.11"
+
+    // mybatis 版本
+    mybatisVersion = "3.5.7"
+    mybatisSpringBootStarter = "2.1.1"
+
+    // mysql
+    druidVersion = "1.1.10"
+    mysqlVersion = "8.0.17"
+
+    fastjsonVersion = "1.2.75"
+
+    // redis
+    springRedisVersion = '2.1.8.RELEASE'
+    jedisVersion = "2.9.3"
+
+    hutoolVersion = "5.7.5"
+
+    commonsLang3Version = '3.8.1'
+    okhttpVersion = "3.4.1"
+
+}
+
+// 应用build 可执行jar包
+apply plugin: 'application'
+mainClassName = 'com.example.demo.DemoApplication'
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.example.demo.DemoApplication'
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+allprojects{
+    group = 'com.example.demo'
+    version = '0.0.1-SNAPSHOT'
+    sourceCompatibility = '1.8'
+
+    // 插件
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'org.springframework.boot'
+
+    configurations {
+        deployerJars
+    }
+
+    // 仓库设置
+    repositories {
+        //本地资源库
+        mavenLocal()
+
+        //maven中心库
+        mavenCentral()
+
+        //自定义maven仓库
+        maven {
+            name 'aliyun-repository'
+            url 'http://maven.aliyun.com/nexus/content/groups/public'
+        }
+
+        jcenter()
+    }
+
+    configurations.all {
+        // 强制使用某个版本
+        resolutionStrategy {
+//            force "org.springframework.boot:spring-boot-starter:${springBootVersion}"
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
+
+    //java8 doc兼容性
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+        options.addStringOption('encoding', 'UTF-8')
+        options.addStringOption('charSet', 'UTF-8')
+    }
+
+    //在多模块下，不然编译失败，因为不会把信赖模块给打包
+    jar {
+        enabled = true
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+
+        // 排包
+        all*.exclude module: 'slf4j-log4j12'
+    }
+
+    // 刷新快照包
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 60, 'seconds'
+    }
+
+    dependencies {
+        // 插件io.spring.dependency-management问题需增加log4j
+        implementation("log4j:log4j:1.2.17")
+    }
+
+    // bom依赖
+    dependencyManagement {
+        // 依赖传递
+        dependencies {
+
+            dependency "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+
+            dependency "org.mybatis:mybatis:${mybatisVersion}"
+            dependency "org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisSpringBootStarter}"
+
+            dependency "com.alibaba.spring:spring-context-support:${springContextSupportVersion}"
+
+            dependency "com.alibaba:druid:${druidVersion}"
+            dependency "mysql:mysql-connector-java:${mysqlVersion}"
+
+            dependency "com.alibaba:fastjson:${fastjsonVersion}"
+
+            dependency "redis.clients:jedis:${jedisVersion}"
+            dependency "org.springframework.boot:spring-boot-starter-data-redis:${springRedisVersion}"
+
+            dependency "cn.hutool:hutool-all:${hutoolVersion}"
+
+            dependency "org.apache.commons:commons-lang3:${commonsLang3Version}"
+
+            dependency "com.squareup.okhttp3:okhttp:${okhttpVersion}"
+
+        }
+    }
+
+}
+
+// 子模块管理
+subprojects {
+
+    dependencies {
+        compile 'org.projectlombok:lombok:1.18.10'
+        annotationProcessor 'org.projectlombok:lombok:1.18.10'
+    }
+
+}

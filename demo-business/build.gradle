@@ -1,0 +1,24 @@
+dependencies {
+    compile project(":demo-api")
+    compile project(":demo-dao")
+
+    compile 'com.alibaba.spring:spring-context-support'
+
+    compile "org.mybatis.spring.boot:mybatis-spring-boot-starter"
+    implementation "com.alibaba:druid"
+    implementation 'mysql:mysql-connector-java'
+
+    compile "redis.clients:jedis"
+    compile "org.springframework.boot:spring-boot-starter-data-redis"
+    compile ('org.redisson:redisson:3.8.2'){
+        exclude group: 'io.netty'
+    }
+
+
+    compile "cn.hutool:hutool-all"
+    compile "com.alibaba:fastjson"
+
+    compile 'org.apache.commons:commons-lang3'
+    compile "com.squareup.okhttp3:okhttp"
+
+}

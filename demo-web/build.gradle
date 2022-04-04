@@ -1,0 +1,6 @@
+dependencies {
+    compile project(":demo-business")
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    compile 'org.apache.skywalking:apm-toolkit-logback-1.x:8.5.0'
+    compile 'org.springframework.boot:spring-boot-starter-web'
+}
